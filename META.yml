@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name: Apache-Quota
-version: 0.02
+version: 0.03
 author:
   - Dave Rolsky <autarch@urth.org>
 abstract: |-
@@ -12,7 +12,7 @@ recommends:
 provides:
   Apache::Quota:
     file: lib/Apache/Quota.pm
-    version: 0.02
+    version: 0.03
   Apache::Quota::BerkeleyDB:
     file: lib/Apache/Quota/BerkeleyDB.pm
   Apache::Quota::DB_File::Lock:

@@ -10,7 +10,7 @@ use File::Temp ();
 
 use vars qw ( $VERSION $DEBUG );
 
-$VERSION = 0.02;
+$VERSION = 0.03;
 
 use constant KB => 1024;
 use constant MB => 1024 ** 2;
@@ -382,7 +382,7 @@ sub set_key
 
     my $db = $locker->open_db( file => $p{file}, mode => 'write' );
 
-    return 0 unless exists $db{$key};
+    return 0 unless exists $db->{ $p{key} };
 
     if ( defined $p{value} )
     {
@@ -543,10 +543,12 @@ sent to the Apache log via C<warn()>.
 
 =back
 
-=head2 Functions
+=head2 Functions for External Use
 
 This module also offers some functions for directly looking at and
 manipulating quotas.  None of these functions are exportable.
+
+=head3 Common Parameters
 
 All of these functions accept the following parameters:
 
@@ -561,6 +563,8 @@ This is the db file you want to access.
 The locker class to use, "BerkeleyDB" or "DB_File::Lock".
 
 =back
+
+=head3 Functions
 
 =over 4
 
