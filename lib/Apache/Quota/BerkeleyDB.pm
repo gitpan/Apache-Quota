@@ -5,7 +5,7 @@ use strict;
 use BerkeleyDB qw( DB_CREATE DB_RDONLY DB_INIT_LOCK DB_INIT_MPOOL );
 use File::Basename ();
 
-sub open_db
+sub _open_db
 {
     my $class = shift;
     my %p = @_;

@@ -10,7 +10,7 @@ use File::Temp ();
 
 use vars qw ( $VERSION $DEBUG );
 
-$VERSION = 0.03;
+$VERSION = 0.04;
 
 use constant KB => 1024;
 use constant MB => 1024 ** 2;
@@ -110,7 +110,7 @@ sub handler
         _log( $r, "period is $period seconds" )
             if $DEBUG;
 
-        my $db = $locker->open_db( file => $file, mode => 'read' );
+        my $db = $locker->_open_db( file => $file, mode => 'read' );
 
         my $expired = time - $period;
         $main->notes( 'Apache::Quota::expired' => $expired );
@@ -280,7 +280,7 @@ sub _record_usage
         if $DEBUG;
 
     my $db =
-        $r->notes('Apache::Quota::locker')->open_db
+        $r->notes('Apache::Quota::locker')->_open_db
             ( file => $r->notes('Apache::Quota::file'), mode => 'write' );
 
     my $key = $r->notes('Apache::Quota::full_key');
@@ -322,7 +322,7 @@ sub usage
     eval "require $locker";
     die $@ if $@;
 
-    my $db = $locker->open_db( file => $p{file}, mode => 'read' );
+    my $db = $locker->_open_db( file => $p{file}, mode => 'read' );
 
     my $expired = 0;
     if ( defined $p{period} )
@@ -380,7 +380,7 @@ sub set_key
     eval "require $locker";
     die $@ if $@;
 
-    my $db = $locker->open_db( file => $p{file}, mode => 'write' );
+    my $db = $locker->_open_db( file => $p{file}, mode => 'write' );
 
     return 0 unless exists $db->{ $p{key} };
 
@@ -449,14 +449,15 @@ Apache::Quota - Flexible transfer limiting/throttling under mod_perl
 =head1 DESCRIPTION
 
 This module provides flexible transfer quotas for all or part of a
-site.  Additionally, limiting may be for the site as a whole, on a
-per-client IP basis, or based on some other criterion you choose.
+site.  Additionally, quotas may be enforced for the site as a whole,
+on a per-client IP basis, or based on some other criterion you define.
 
 =head1 USAGE
 
 Most of this module's functionality is used by setting variables via
 the mod_perl C<PerlSetVar> directive.  The module should be installed
-as a C<PerlFixupHandler> for a location.
+as a C<PerlFixupHandler> in a Location or similar Apache configuration
+block.
 
 =head2 PerlSetVar Parameters
 
@@ -467,7 +468,7 @@ The following directives are available:
 =item * QuotaFile (required)
 
 The DB file where quota usage will be recorded.  A single file can be
-shared across multiple locations, or you can use multiple files.
+shared across multiple locations.
 
 =item * QuotaLimit (required)
 
@@ -497,7 +498,7 @@ this may not actually correspond to a single client.
 If it is set to "sub", then the module will call a user-specified
 subroutine to generate the unique identifier for the client.  One way
 to use this would be to have it call a subroutine that gets a unique
-id from a cookie.
+id from a cookie or uses C<< $r->user() >>.
 
 This parameter defaults to "global".
 
@@ -514,7 +515,7 @@ current location.  This allows you to use one quota file for multiple
 locations, and track quota usage for each location separately.  This
 key can be anything, but it B<must not contain a colon (:)>.
 
-If not given, this default to "Apache-Quota global key" for _all_
+If not given, this default to "Apache-Quota global key" for I<all>
 locations.
 
 =item * QuotaOnExceed
@@ -611,6 +612,8 @@ usage information for the given key.
 
 If the key is not in the db file, then this method returns a false
 value.
+
+=back
 
 =head1 SUPPORT
 

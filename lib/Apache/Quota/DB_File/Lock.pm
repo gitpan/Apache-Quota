@@ -5,7 +5,7 @@ use strict;
 use DB_File::Lock;
 use Fcntl qw(O_CREAT O_RDWR O_RDONLY);
 
-sub open_db
+sub _open_db
 {
     my $class = shift;
     my %p = @_;
